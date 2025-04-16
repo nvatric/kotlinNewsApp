@@ -12,9 +12,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 
+
 @Composable
 fun FilterSection(
-    selectedCategory: String,
+    selectedCategories: Set<String>,
     onCategorySelected: (String) -> Unit
 ) {
     val categories = listOf(
@@ -31,13 +32,15 @@ fun FilterSection(
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(categories) { pair->
-            val (category, testTag) =pair
-            FilterChipItem(
-                category = category,
-                selected = selectedCategory == category,
-                onClick = onCategorySelected,
-                testTag = testTag
+        items(categories) { (category, testTag) ->
+            val selected = selectedCategories.contains(category)
+            FilterChip(
+                selected = selected,
+                onClick = {
+                    onCategorySelected(category)
+                },
+                label = { Text(category) },
+                modifier = Modifier.testTag(testTag)
             )
         }
     }
@@ -59,3 +62,7 @@ fun FilterChipItem(
         modifier = Modifier.testTag(testTag)
     )
 }
+
+
+
+

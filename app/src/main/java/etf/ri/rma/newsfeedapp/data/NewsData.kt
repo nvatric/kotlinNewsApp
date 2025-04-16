@@ -14,7 +14,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = false,
                 source = "Avaz",
-                publishedDate = "2025-04-10"
+                publishedDate = "2021-04-10"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -24,7 +24,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "N1",
-                publishedDate = "2025-04-08"
+                publishedDate = "2022-04-08"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -34,7 +34,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = false,
                 source = "Oslobođenje",
-                publishedDate = "2025-04-07"
+                publishedDate = "2023-04-07"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -44,7 +44,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "Nezavisne novine",
-                publishedDate = "2025-04-06"
+                publishedDate = "2030-04-06"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -74,7 +74,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = false,
                 source = "Sportske.ba",
-                publishedDate = "2025-04-11"
+                publishedDate = "2021-04-11"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -84,7 +84,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "SportSport.ba",
-                publishedDate = "2025-04-10"
+                publishedDate = "2022-04-10"
             ),
 
             NewsItem(
@@ -95,7 +95,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = false,
                 source = "Avaz",
-                publishedDate = "2025-04-09"
+                publishedDate = "2023-04-09"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -105,7 +105,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "Klix.ba",
-                publishedDate = "2025-04-08"
+                publishedDate = "2024-04-08"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -145,7 +145,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "Al Jazeera Balkans",
-                publishedDate = "2025-04-10"
+                publishedDate = "2021-04-10"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -155,7 +155,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Klix.ba",
-                publishedDate = "2025-04-09"
+                publishedDate = "2022-04-09"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -165,7 +165,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "N1",
-                publishedDate = "2025-04-08"
+                publishedDate = "2023-04-08"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -175,7 +175,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Avaz",
-                publishedDate = "2025-04-07"
+                publishedDate = "2024-04-07"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -195,7 +195,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Oslobođenje",
-                publishedDate = "2025-04-05"
+                publishedDate = "2003-04-05"
             ),
             NewsItem(
                 id = UUID.randomUUID().toString(),
@@ -205,7 +205,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "Klix.ba",
-                publishedDate = "2025-04-10"
+                publishedDate = "2011-04-10"
             )
         )
     }

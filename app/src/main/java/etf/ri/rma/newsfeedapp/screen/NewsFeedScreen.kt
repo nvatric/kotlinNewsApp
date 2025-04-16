@@ -1,5 +1,4 @@
 package etf.ri.rma.newsfeedapp.screen
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,36 +17,61 @@ import etf.ri.rma.newsfeedapp.data.NewsData
 import androidx.compose.ui.platform.testTag
 
 
-
 @Composable
-fun NewsFeedScreen(){
-    var selectedCategory by remember { mutableStateOf("Sve")}
-    val allNews=NewsData.getAllNews()
-    val filteredNews = when (selectedCategory) {
-        "Politika" -> allNews.filter { it.category == "Politika" }
-        "Sport" -> allNews.filter { it.category == "Sport" }
-        "Nauka/tehnologija" -> allNews.filter { it.category == "Nauka/tehnologija" }
-        "Svijet" -> allNews.filter { it.category =="Svijet" }
-        else -> allNews
+fun NewsFeedScreen() {
+    var selectedCategories by remember { mutableStateOf(setOf("Sve")) }
+    var selectedSortOption by remember { mutableStateOf<String?>(null) }
+
+    val allNews = NewsData.getAllNews()
+
+    val filteredNews = if (selectedCategories.contains("Sve")) {
+        allNews
+    } else {
+        allNews.filter { it.category in selectedCategories }
+    }
+
+    val sortedNews = when (selectedSortOption) {
+        "Datum ⇩" -> filteredNews.sortedBy { it.publishedDate }
+        "Datum ⇧" -> filteredNews.sortedByDescending { it.publishedDate }
+        else -> filteredNews
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
-
         FilterSection(
-            selectedCategory = selectedCategory,
-            onCategorySelected = { selectedCategory = it }
+            selectedCategories = selectedCategories,
+            onCategorySelected = { category ->
+                selectedCategories = if (category == "Sve") {
+                    setOf("Sve")
+                } else {
+                    if (selectedCategories.contains(category)) {
+                        val newSelection = selectedCategories - category
+                        if (newSelection.isEmpty()) setOf("Sve") else newSelection
+                    } else {
+                        selectedCategories - "Sve" + category
+                    }
+                }
+            }
         )
+
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (filteredNews.isEmpty()) {
-            MessageCard(poruka= "Nema pronađenih vijesti u kategoriji $selectedCategory")
-        } else {
+        SortSel(
+            selectedSortOption = selectedSortOption,
+            onSortOptionSelected = { sortOption ->
+                selectedSortOption = sortOption
+            }
+        )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (sortedNews.isEmpty()) {
+            MessageCard(poruka = "Nema pronađenih vijesti za odabrane filtere")
+        } else {
             LazyColumn(
                 modifier = Modifier.testTag("news_list"),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(filteredNews, key = { it.id }) { newsItem ->
+                items(sortedNews, key = { it.id }) { newsItem ->
                     if (newsItem.isFeatured) {
                         FeaturedNewsCard(newsItem)
                     } else {
@@ -58,5 +82,3 @@ fun NewsFeedScreen(){
         }
     }
 }
-
-
