@@ -19,14 +19,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import etf.ri.rma.newsfeedapp.R
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import androidx.compose.foundation.clickable
+import androidx.navigation.NavController
 
 
 @Composable
-fun FeaturedNewsCard(newsItem: NewsItem) {
+fun FeaturedNewsCard(newsItem: NewsItem, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { navController.navigate("details/${newsItem.id}") }, // Navigacija na detalje
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -36,7 +39,7 @@ fun FeaturedNewsCard(newsItem: NewsItem) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.vijesti3),
-                contentDescription = "image",
+                contentDescription = "Slika vijesti",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -49,8 +52,7 @@ fun FeaturedNewsCard(newsItem: NewsItem) {
                 text = newsItem.title,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -59,8 +61,7 @@ fun FeaturedNewsCard(newsItem: NewsItem) {
                 text = newsItem.snippet,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -68,8 +69,7 @@ fun FeaturedNewsCard(newsItem: NewsItem) {
             Text(
                 text = "${newsItem.source} • ${newsItem.publishedDate}",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF757575),
-                modifier = Modifier.fillMaxWidth()
+                color = Color.Gray
             )
         }
     }
