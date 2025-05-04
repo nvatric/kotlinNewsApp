@@ -152,5 +152,3 @@ fun FilterScreen(navController: NavController) {
         }
     }
 }
-
-

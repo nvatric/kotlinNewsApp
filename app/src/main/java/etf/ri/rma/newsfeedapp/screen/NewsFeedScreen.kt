@@ -57,22 +57,8 @@ fun NewsFeedScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-<<<<<<< Updated upstream
-        SortSel(
-            selectedSortOption = selectedSortOption,
-            onSortOptionSelected = { sortOption ->
-                selectedSortOption = sortOption
-            }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (sortedNews.isEmpty()) {
-            MessageCard(poruka = "Nema pronađenih vijesti za odabrane filtere")
-=======
         if (filteredNews.isEmpty()) {
             Text("Nema pronađenih vijesti u kategoriji ${filters.category}")
->>>>>>> Stashed changes
         } else {
             NewsList(
                 newsItem = filteredNews,
@@ -83,7 +69,7 @@ fun NewsFeedScreen(navController: NavController) {
 }
 
 
-// **Popravljena funkcija za filtriranje po datumu**
+// *Popravljena funkcija za filtriranje po datumu*
 fun isDateInRange(date: String, dateRange: String?): Boolean {
     if (dateRange.isNullOrEmpty()) return true // Ako korisnik nije odabrao datume, prikazujemo sve vijesti
 

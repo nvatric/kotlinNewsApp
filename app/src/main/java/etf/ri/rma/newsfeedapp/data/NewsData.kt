@@ -14,11 +14,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = false,
                 source = "Avaz",
-<<<<<<< Updated upstream
-                publishedDate = "2021-04-10"
-=======
                 publishedDate = "10-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "1",
@@ -28,11 +24,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "N1",
-<<<<<<< Updated upstream
-                publishedDate = "2022-04-08"
-=======
                 publishedDate = "08-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "2",
@@ -42,11 +34,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = false,
                 source = "Oslobođenje",
-<<<<<<< Updated upstream
-                publishedDate = "2023-04-07"
-=======
                 publishedDate = "07-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "3",
@@ -56,11 +44,7 @@ object NewsData {
                 category = "Politika",
                 isFeatured = true,
                 source = "Nezavisne novine",
-<<<<<<< Updated upstream
-                publishedDate = "2030-04-06"
-=======
                 publishedDate = "06-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "4",
@@ -90,11 +74,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = false,
                 source = "Sportske.ba",
-<<<<<<< Updated upstream
-                publishedDate = "2021-04-11"
-=======
                 publishedDate = "11-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "7",
@@ -104,11 +84,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "SportSport.ba",
-<<<<<<< Updated upstream
-                publishedDate = "2022-04-10"
-=======
                 publishedDate = "10-04-2025"
->>>>>>> Stashed changes
             ),
 
             NewsItem(
@@ -119,11 +95,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = false,
                 source = "Avaz",
-<<<<<<< Updated upstream
-                publishedDate = "2023-04-09"
-=======
                 publishedDate = "09-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "9",
@@ -133,11 +105,7 @@ object NewsData {
                 category = "Sport",
                 isFeatured = true,
                 source = "Klix.ba",
-<<<<<<< Updated upstream
-                publishedDate = "2024-04-08"
-=======
                 publishedDate = "08-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "10",
@@ -177,11 +145,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "Al Jazeera Balkans",
-<<<<<<< Updated upstream
-                publishedDate = "2021-04-10"
-=======
                 publishedDate = "10-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "14",
@@ -191,11 +155,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Klix.ba",
-<<<<<<< Updated upstream
-                publishedDate = "2022-04-09"
-=======
                 publishedDate = "09-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "15",
@@ -205,11 +165,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "N1",
-<<<<<<< Updated upstream
-                publishedDate = "2023-04-08"
-=======
                 publishedDate = "08-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "16",
@@ -219,11 +175,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Avaz",
-<<<<<<< Updated upstream
-                publishedDate = "2024-04-07"
-=======
                 publishedDate = "07-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "17",
@@ -243,11 +195,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = false,
                 source = "Oslobođenje",
-<<<<<<< Updated upstream
-                publishedDate = "2003-04-05"
-=======
                 publishedDate = "05-04-2025"
->>>>>>> Stashed changes
             ),
             NewsItem(
                 id = "19",
@@ -257,11 +205,7 @@ object NewsData {
                 category = "Nauka/tehnologija",
                 isFeatured = true,
                 source = "Klix.ba",
-<<<<<<< Updated upstream
-                publishedDate = "2011-04-10"
-=======
                 publishedDate = "10-04-2025"
->>>>>>> Stashed changes
             )
         )
     }
