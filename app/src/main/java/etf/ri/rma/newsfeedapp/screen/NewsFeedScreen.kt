@@ -1,88 +1,172 @@
 package etf.ri.rma.newsfeedapp.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import etf.ri.rma.newsfeedapp.data.NewsData
-import etf.ri.rma.newsfeedapp.model.FilterData
-import java.text.SimpleDateFormat
-import java.util.*
 import androidx.navigation.compose.currentBackStackEntryAsState
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+import etf.ri.rma.newsfeedapp.model.NewsItem
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
+val categoryDisplayToApi = mapOf(
+    "Politika" to "politics",
+    "Sport" to "sports",
+    "Nauka/tehnologija" to "tech",
+    "Svijet" to "general",
+    "All" to "general"
+)
 
+fun mapToApiCategory(displayCategory: String): String {
+    return categoryDisplayToApi[displayCategory] ?: "general"
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewsFeedScreen(navController: NavController) {
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val savedStateHandle = currentBackStackEntry?.savedStateHandle
+fun NewsFeedScreen(navController: NavController, newsDAO: NewsDAO) {
+    var allNews by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var selectedSort by rememberSaveable { mutableStateOf<SortOption?>(null) }
+    var selectedCategory by remember { mutableStateOf("All") }
+    var selectedRange by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var unwantedWords by remember { mutableStateOf(emptyList<String>()) }
+    var lastGlobalCallTime by remember { mutableStateOf(0L) }
 
-    var filters by remember {
-        mutableStateOf(FilterData(category = "All", dateRange = null, unwantedWords = emptyList()))
-    }
+    val coroutineScope = rememberCoroutineScope()
+    val outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
-    // OVO REAGUJE NA PROMJENE I AŽURIRA FILTAR
-    LaunchedEffect(
-        savedStateHandle?.get<String>("category"),
-        savedStateHandle?.get<String>("dateRange"),
-        savedStateHandle?.get<Array<String>>("unwantedWords")
-    ) {
-        val newCategory = savedStateHandle?.get<String>("category") ?: "All"
-        val newFilters = FilterData(
-            category = newCategory,
-            dateRange = savedStateHandle?.get<String>("dateRange"),
-            unwantedWords = savedStateHandle?.get<Array<String>>("unwantedWords")?.toList() ?: emptyList()
-        )
-        filters = newFilters
-    }//
-    val allNews = NewsData.getAllNews()
-    val filteredNews = allNews.filter {
-        (filters.category == "All" || it.category == filters.category) &&
-                (filters.dateRange?.let { range -> isDateInRange(it.publishedDate, range) } ?: true) &&
-                filters.unwantedWords.none { word ->
-                    it.title.contains(word, ignoreCase = true) || it.snippet.contains(word, ignoreCase = true)
-                }
-    }
+    val navEntry = navController.currentBackStackEntryAsState().value
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        FilterSection(
-            selectedCategories = setOf(filters.category),
-            onCategorySelected = { newCategory ->
-                filters = filters.copy(category = newCategory)
-            },
-            navController = navController,
-            filters=filters
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (filteredNews.isEmpty()) {
-            Text("Nema pronađenih vijesti u kategoriji ${filters.category}")
-        } else {
-            NewsList(
-                newsItem = filteredNews,
-                navController = navController
-            )
+    LaunchedEffect(navEntry) {
+        navEntry?.savedStateHandle?.get<Boolean>("refreshRequired")?.let { shouldRefresh ->
+            if (shouldRefresh) {
+                allNews = newsDAO.getAllStories()
+                navEntry.savedStateHandle.set("refreshRequired", false)
+            }
         }
+
+        navEntry?.savedStateHandle?.get<String>("selectedCategory")?.let {
+            selectedCategory = it
+        }
+        navEntry?.savedStateHandle?.get<Pair<String, String>>("selectedRange")?.let {
+            selectedRange = it
+        }
+        navEntry?.savedStateHandle?.get<List<String>>("unwantedWords")?.let {
+            unwantedWords = it
+        }
+    }
+
+    fun fetchCategoryNews(displayCategory: String) {
+        if (displayCategory == "All") return
+
+        val apiCategory = mapToApiCategory(displayCategory)
+        val currentTime = System.currentTimeMillis()
+        val thirtySecondsInMillis = 30 * 1000
+
+        if (currentTime - lastGlobalCallTime > thirtySecondsInMillis) {
+            coroutineScope.launch {
+                isLoading = true
+                try {
+                    newsDAO.getTopStoriesByCategory(apiCategory)
+                    allNews = newsDAO.getAllStories()
+                    lastGlobalCallTime = currentTime
+                } catch (e: Exception) {
+                    Log.e("NewsFeedScreen", "Error fetching category news", e)
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(selectedCategory) {
+        if (selectedCategory == "All") {
+            allNews = newsDAO.getAllStories()
+        } else {
+            fetchCategoryNews(selectedCategory)
+        }
+    }
+
+    val filteredNews = allNews
+        .filter { newsItem ->
+            selectedCategory == "All" || newsItem.category == mapToApiCategory(selectedCategory)
+        }
+        .filter { newsItem ->
+            selectedRange?.let { (startString, endString) ->
+                val startDate = LocalDate.parse(startString, outputFormatter)
+                val endDate = LocalDate.parse(endString, outputFormatter)
+                val newsDate = LocalDate.parse(newsItem.publishedDate, outputFormatter)
+                newsDate in startDate..endDate
+            } ?: true
+        }
+        .filter { newsItem ->
+            unwantedWords.none { word ->
+                newsItem.title.contains(word, ignoreCase = true) ||
+                        newsItem.snippet.contains(word, ignoreCase = true)
+            }
+        }
+
+    val sortedNews = when (selectedSort) {
+        SortOption.DATE_ASC -> {
+            val featured = filteredNews.filter { it.isFeatured }.sortedBy { it.publishedDate }
+            val regular = filteredNews.filter { !it.isFeatured }.sortedBy { it.publishedDate }
+            featured + regular
+        }
+        SortOption.DATE_DESC -> {
+            val featured = filteredNews.filter { it.isFeatured }.sortedByDescending { it.publishedDate }
+            val regular = filteredNews.filter { !it.isFeatured }.sortedByDescending { it.publishedDate }
+            featured + regular
+        }
+        null -> {
+            val featured = filteredNews.filter { it.isFeatured }
+            val regular = filteredNews.filter { !it.isFeatured }
+            featured + regular
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        FilterSection(
+            selectedCategory = selectedCategory,
+            onCategorySelected = { category ->
+                selectedCategory = category
+                navEntry?.savedStateHandle?.apply {
+                    remove<String>("selectedCategory")
+                    set("selectedCategory", category)
+                }
+                fetchCategoryNews(category)
+            },
+            navController = navController
+        )
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        NewsList(
+            newsItems = sortedNews,
+            navController = navController,
+            category = selectedCategory
+        )
     }
 }
 
-
-// *Popravljena funkcija za filtriranje po datumu*
-fun isDateInRange(date: String, dateRange: String?): Boolean {
-    if (dateRange.isNullOrEmpty()) return true // Ako korisnik nije odabrao datume, prikazujemo sve vijesti
-
-    val format = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) // Tačan format za poređenje datuma
-    val newsDate = format.parse(date) ?: return false // Parsiramo datum vijesti
-
-    // Razdvajamo opseg datuma na početni i krajnji datum
-    val rangeParts = dateRange.split(";")
-    if (rangeParts.size != 2) return false // Ako format nije ispravan, ne filtriramo
-
-    val startDate = format.parse(rangeParts[0]) ?: return false
-    val endDate = format.parse(rangeParts[1]) ?: return false
-
-    // Provjeravamo da li vijest spada unutar opsega datuma
-    return (newsDate.after(startDate) && newsDate.before(endDate)) || newsDate == startDate || newsDate == endDate
+enum class SortOption {
+    DATE_ASC,
+    DATE_DESC
 }

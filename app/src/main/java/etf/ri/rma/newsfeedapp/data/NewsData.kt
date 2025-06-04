@@ -1,212 +1,120 @@
 package etf.ri.rma.newsfeedapp.data
 
 import etf.ri.rma.newsfeedapp.model.NewsItem
-import java.util.UUID
 
 object NewsData {
-    fun getAllNews(): List<NewsItem>{
+    fun getAllNews(): List<NewsItem> {
         return listOf(
             NewsItem(
-                id = "0",
-                title = "Digitalizacija javne uprave do kraja godine",
-                snippet = "Građani će moći podnositi zahtjeve online.",
-                imageUrl = null,
-                category = "Politika",
+                uuid = "f1dcac63-4b67-4485-ad92-1348761dba05",
+                title = "Super League: Wigan trounce Salford as Jacob Douglas scores hat-trick",
+                snippet = "Watch highlights as Wigan's Jacob Douglas scores a hat-trick in a dominant Super League win against Salford.",
+                imageUrl = "https://ichef.bbci.co.uk/ace/standard/1024/cpsprodpb/692b/live/9f52aa90-3e0c-11f0-b6e6-4ddb91039da1.png",
+                category = "sports",
                 isFeatured = false,
-                source = "Avaz",
-                publishedDate = "10-04-2025"
+                source = "bbc.co.uk",
+                publishedDate = "31-05-2025",
+                imageTags = arrayListOf()
             ),
             NewsItem(
-                id = "1",
-                title = "BiH otvara pregovore s EU",
-                snippet = "Veliki dan za evropsku integraciju.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "N1",
-                publishedDate = "08-04-2025"
-            ),
-            NewsItem(
-                id = "2",
-                title = "Novi budžet predviđa veća ulaganja u obrazovanje",
-                snippet = "Planiraju se veća sredstva za škole i univerzitete.",
-                imageUrl = null,
-                category = "Politika",
+                uuid = "ce1c523b-39fc-4ec2-88cc-f574d42add77",
+                title = "Shohei Ohtani hits 2 HRs as Dodgers top Aaron Judge, Yankees",
+                snippet = "Shohei Ohtani homered twice as the Dodgers overcame an Aaron Judge homer and a four-run deficit to beat the Yankees.",
+                imageUrl = "https://a3.espncdn.com/combiner/i?img=%2Fphoto%2F2025%2F0531%2Fr1500621_1296x729_16%2D9.jpg",
+                category = "sports",
                 isFeatured = false,
-                source = "Oslobođenje",
-                publishedDate = "07-04-2025"
+                source = "espn.com",
+                publishedDate = "31-05-2025",
+                imageTags = arrayListOf()
             ),
             NewsItem(
-                id = "3",
-                title = "Parlament raspravlja o novim zakonima za mlade",
-                snippet = "Poticaji za zapošljavanje i obrazovanje.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "Nezavisne novine",
-                publishedDate = "06-04-2025"
-            ),
-            NewsItem(
-                id = "4",
-                title = "Ministar sigurnosti upozorava na cyber prijetnje",
-                snippet = "Poziv na jačanje zaštite IT sistema.",
-                imageUrl = null,
-                category = "Politika",
+                uuid = "807f3766-9a22-4624-ad48-b15e2f565921",
+                title = "Scotland: Amy Rodgers sustains broken jaw, Charlotte Newsham called up as replacement",
+                snippet = "Midfielder Amy Rodgers is ruled out of Scotland's final Nations League A group game against the Netherlands after breaking her jaw.",
+                imageUrl = "https://ichef.bbci.co.uk/ace/branded_sport/1200/cpsprodpb/e7a6/live/e6ad8f80-3e08-11f0-9c86-919ba9abf877.jpg",
+                category = "sports",
                 isFeatured = false,
-                source = "RTRS",
-                publishedDate = "05-04-2025"
+                source = "bbc.co.uk",
+                publishedDate = "31-05-2025",
+                imageTags = arrayListOf()
             ),
             NewsItem(
-                id = "5",
-                title = "Predsjedništvo BiH na samitu u Beču",
-                snippet = "Ekonomska saradnja u fokusu sastanka.",
-                imageUrl = null,
-                category = "Politika",
-                isFeatured = true,
-                source = "Al Jazeera Balkans",
-                publishedDate = "04-04-2025"
-            ),
-            NewsItem(
-                id = "6",
-                title = "FK Sarajevo izborio finale Kupa BiH",
-                snippet = "Pobjedom protiv Širokog Brijega osigurali plasman u veliko finale.",
-                imageUrl = null,
-                category = "Sport",
+                uuid = "f1a07f25-db09-406e-9531-ad79694c39cc",
+                title = "Trump Responds to Potential Sean 'Diddy' Combs Pardon",
+                snippet = "President Donald Trump on Friday did not rule out pardoning Sean “Diddy” Combs if the music mogul was found guilty.",
+                imageUrl = "https://media-cldnry.s-nbcnews.com/image/upload/t_social_share_1200x630_center,f_auto,q_auto:best/mpx/2704722219/2025_05/1748691903616_tdy_sat_chandler_trump_combs_250531_1920x1080-3nqqwy.jpg",
+                category = "politics",
                 isFeatured = false,
-                source = "Sportske.ba",
-                publishedDate = "11-04-2025"
+                source = "nbcnews.com",
+                publishedDate = "31-05-2025",
+                imageTags = arrayListOf()
             ),
             NewsItem(
-                id = "7",
-                title = "Zmajevi spremni za meč protiv Italije",
-                snippet = "Selektor kaže: 'Ovo je naša šansa!'",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "SportSport.ba",
-                publishedDate = "10-04-2025"
-            ),
-
-            NewsItem(
-                id = "8",
-                title = "Sarajevski maraton oborio rekorde",
-                snippet = "Preko 12.000 učesnika iz 40 zemalja.",
-                imageUrl = null,
-                category = "Sport",
+                uuid = "4cfd6e0c-e546-4887-8d6b-ddd369921017",
+                title = "Todd Chrisley Makes First Public Comments After Trump Pardon",
+                snippet = "Todd Chrisley is speaking out after he and his wife Julie Chrisley were released from prison following a Trump pardon.",
+                imageUrl = "https://media-cldnry.s-nbcnews.com/image/upload/t_social_share_1200x630_center,f_auto,q_auto:best/mpx/2704722219/2025_05/1748691505997_tdy_sat_chandler_todd_chrisley_250531_1920x1080-ojks2j.jpg",
+                category = "politics",
                 isFeatured = false,
-                source = "Avaz",
-                publishedDate = "09-04-2025"
+                source = "nbcnews.com",
+                publishedDate = "31-05-2025",
+                imageTags = arrayListOf()
             ),
             NewsItem(
-                id = "9",
-                title = "Mladi teniser iz Tuzle pobijedio na turniru u Rimu",
-                snippet = "Talent koji obećava veliku karijeru.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "Klix.ba",
-                publishedDate = "08-04-2025"
+                uuid = "4efdfbd7-afe8-4351-98ab-1f61b0253aad",
+            title = "Biden Says He’s ‘Feeling Good’ in First Comments About Cancer",
+            snippet = "Former President Biden appeared at a Memorial Day event in Delaware where he spoke publicly about his Stage 4 prostate cancer diagnosis.",
+            imageUrl = "https://media-cldnry.s-nbcnews.com/image/upload/t_social_share_1200x630_center,f_auto,q_auto:best/mpx/2704722219/2025_05/1748691125770_tdy_sat_hillyard_biden_cancer_250531_1920x1080-rnrj4q.jpg",
+            category = "politics",
+            isFeatured = false,
+            source = "nbcnews.com",
+            publishedDate = "31-05-2025",
+                imageTags = arrayListOf()
             ),
-            NewsItem(
-                id = "10",
-                title = "Košarkašice BiH plasirale se na EP",
-                snippet = "Dramatična završnica protiv Češke.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = false,
-                source = "N1",
-                publishedDate = "07-04-2025"
-            ),
-            NewsItem(
-                id = "11",
-                title = "Banjalučki klub osvaja titulu",
-                snippet = "Fudbalski klasik odlučen penalima.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = true,
-                source = "RTRS",
-                publishedDate = "06-04-2025"
-            ),
-            NewsItem(
-                id = "12",
-                title = "eSports ekipa iz Sarajeva među top 10 u Evropi",
-                snippet = "Ogroman uspjeh domaće gaming scene.",
-                imageUrl = null,
-                category = "Sport",
-                isFeatured = false,
-                source = "Oslobođenje",
-                publishedDate = "05-04-2025"
-            ),
-            NewsItem(
-                id = "13",
-                title = "Bosanskohercegovački naučnici razvili biorazgradivu plastiku",
-                snippet = "Revolucionarno otkriće u borbi protiv zagađenja.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "Al Jazeera Balkans",
-                publishedDate = "10-04-2025"
-            ),
-            NewsItem(
-                id = "14",
-                title = "Studenti ETF-a konstruisali autonomnog robota",
-                snippet = "Robot koji se može snalaziti u lavirintima.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = false,
-                source = "Klix.ba",
-                publishedDate = "09-04-2025"
-            ),
-            NewsItem(
-                id = "15",
-                title = "Prva bh. kompanija lansira nanosatelit",
-                snippet = "Projekat u saradnji sa evropskom svemirskom agencijom.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "N1",
-                publishedDate = "08-04-2025"
-            ),
-            NewsItem(
-                id = "16",
-                title = "AI startup iz BiH privukao milionsku investiciju",
-                snippet = "Algoritam koji predviđa bolesti u ranoj fazi.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = false,
-                source = "Avaz",
-                publishedDate = "07-04-2025"
-            ),
-            NewsItem(
-                id = "17",
-                title = "Otvorena nova STEM laboratorija za djecu",
-                snippet = "Podsticanje radoznalosti od najranijih godina.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "Nezavisne novine",
-                publishedDate = "06-04-2025"
-            ),
-            NewsItem(
-                id = "18",
-                title = "Inovacija iz BiH testira se u Švicarskoj",
-                snippet = "Pametna narukvica za mjerenje vitalnih funkcija.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = false,
-                source = "Oslobođenje",
-                publishedDate = "05-04-2025"
-            ),
-            NewsItem(
-                id = "19",
-                title = "Sarajevski studenti razvili aplikaciju za učenje uz pomoć AI",
-                snippet = "Nova aplikacija koristi vještačku inteligenciju za personalizirano učenje.",
-                imageUrl = null,
-                category = "Nauka/tehnologija",
-                isFeatured = true,
-                source = "Klix.ba",
-                publishedDate = "10-04-2025"
-            )
+        NewsItem(
+            uuid = "01a57cf0-8006-444d-b408-67686452cf15",
+            title = "Trump’s crypto complicates Las Vegas wedding between MAGA and bitcoin",
+            snippet = "Bitcoin investor Ryan Nichols, who traveled to the Bitcoin 2025 conference from Austin, Texas, said he’s a Trump fan but wouldn’t touch Trump’s digital currency.",
+            imageUrl = "https://media-cldnry.s-nbcnews.com/image/upload/t_nbcnews-fp-1200-630,f_auto,q_auto:best/rockcms/2025-05/250530-donald-trump-bitcoin-ew-338p-6521f0.jpg",
+            category = "business",
+            isFeatured = false,
+            source = "nbcnews.com",
+            publishedDate = "31-05-2025",
+            imageTags = arrayListOf()
+        ),
+        NewsItem(
+            uuid = "1f1f697d-8794-4186-8755-337a7ec2acba",
+            title = "Pakistan Set to Finalise FWBL Privatisation Deal with UAE",
+            snippet = "Pakistan is poised to conclude the FWBL privatisation process next month, transferring an 82.64% stake to the United Arab Emirates.",
+            imageUrl = "https://www.techjuice.pk/wp-content/uploads/2025/05/pakistan-set-to-finalise-fwbl-privatisation-deal-with-uae-techjuice-177935.jpg",
+            category = "tech",
+            isFeatured = false,
+            source = "techjuice.pk",
+            publishedDate = "31-05-2025",
+            imageTags = arrayListOf()
+        ),
+        NewsItem(
+            uuid = "1d45d796-dd49-4e0c-b5cf-48ccbd519888",
+            title = "Czech Justice Minister Resigns Over Bitcoin Scandal",
+            snippet = "Czech Republic’s Justice Minister Pavel Blažek has resigned following mounting pressure over a bitcoin scandal.",
+            imageUrl = "https://www.techjuice.pk/wp-content/uploads/2025/05/czech-justice-minister-resigns-over-bitcoin-scandal-techjuice-177931.jpg",
+            category = "tech",
+            isFeatured = false,
+            source = "techjuice.pk",
+            publishedDate = "31-05-2025",
+            imageTags = arrayListOf()
+        ),
+        NewsItem(
+            uuid = "0c537b8c-c9a7-4528-be20-3a2323c38054",
+            title = "Who controls India Inc.? The answer is starting to change: NSE report",
+            snippet = "The NSE's March 2025 report reveals private Indian promoters still lead, but domestic mutual funds are catching up.",
+            imageUrl = "https://img.etimg.com/thumb/msid-121533879,width-1200,height-630,imgsize-280904,overlay-etmarkets/articleshow.jpg",
+            category = "business",
+            isFeatured = false,
+            source = "economictimes.indiatimes.com",
+            publishedDate = "31-05-2025",
+            imageTags = arrayListOf()
+        )
         )
     }
 }

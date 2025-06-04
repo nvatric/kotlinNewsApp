@@ -1,7 +1,11 @@
 package etf.ri.rma.newsfeedapp.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -12,14 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import etf.ri.rma.newsfeedapp.model.FilterData
+
 
 @Composable
 fun FilterSection(
-    selectedCategories: Set<String>,
+    selectedCategory: String,
     onCategorySelected: (String) -> Unit,
-    navController: NavController,
-    filters : FilterData
+    navController: NavController
 ) {
     val categories = listOf(
         "All" to "filter_chip_all",
@@ -28,40 +31,49 @@ fun FilterSection(
         "Nauka/tehnologija" to "filter_chip_sci",
         "Svijet" to "filter_chip_empty"
     )
-
-
-    LazyRow(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(categories) { (category, testTag) ->
-            val selected = selectedCategories.contains(category)
-            FilterChip(
-                selected = selected,
-                onClick = { onCategorySelected(category) }, // **Ažurira filter čim klikneš!**
-                label = { Text(category) },
-                modifier = Modifier.testTag(testTag)
-            )
-        }
-    }
-    FilterChip(
-            selected = false,
-    onClick = {
-        navController.previousBackStackEntry?.savedStateHandle?.apply {
-            set("category", filters.category)
-            set("dateRange", filters.dateRange)
-            set("unwantedWords", filters.unwantedWords.toTypedArray()) // Pretvaramo listu u niz
-        }
-        // Navigirajte ka ekranu sa filtrima
-        navController.navigate("filters")
-              },
-    label = { Text("Više filtera ...") },
-    modifier = Modifier.testTag("filter_chip_more")
+    val categoryMap = mapOf(
+        "Politika" to "politics",
+        "Sport" to "sports",
+        "Nauka/tehnologija" to "technology",
+        "Svijet" to "general",
+        "All" to "general"
     )
+
+    fun mapToApiCategory(displayCategory: String): String {
+        return categoryMap[displayCategory] ?: "general"
+    }
+    Column {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(categories) { (category, testTag) ->
+                val selected = selectedCategory == category
+                FilterChip(
+                    selected = selected,
+                    onClick = {
+                        Log.d("FILTER_SECTION", "Selected category: $category, API: ${mapToApiCategory(category)}")
+                        onCategorySelected(category)
+                    },
+                    label = { Text(category) },
+                    modifier = Modifier.testTag(testTag)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        FilterChip(
+            selected = false,
+            onClick = {
+                navController.navigate("filters")
+            },
+            label = { Text("Više filtera ...") },
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .testTag("filter_chip_more")
+        )
+    }
 }
-
-
-
-
-
-

@@ -1,154 +1,275 @@
 package etf.ri.rma.newsfeedapp.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import etf.ri.rma.newsfeedapp.data.network.NewsDAO
+import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterScreen(navController: NavController) {
-    // Preuzimanje podataka iz savedStateHandle pomoću LaunchedEffect
+fun FilterScreen(
+    navController: NavController
+) {
     var selectedCategory by remember { mutableStateOf("All") }
-    var dateFrom by remember { mutableStateOf("") }
-    var dateTo by remember { mutableStateOf("") }
-    var unwantedWordsList by remember { mutableStateOf(listOf<String>()) }
-    var showDatePicker by remember { mutableStateOf(false) }
     var unwantedWord by remember { mutableStateOf("") }
+    var unwantedWords by remember { mutableStateOf(listOf<String>()) }
+    var isLoading by remember { mutableStateOf(false) }
 
-    // Koristimo LaunchedEffect da bismo preuzeli vrednosti iz savedStateHandle
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val savedStateHandle = currentBackStackEntry?.savedStateHandle
+    val dateRangePickerState = rememberDateRangePickerState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    var selectedRange by remember { mutableStateOf<Pair<String, String>?>(null) }
+    val outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
-    LaunchedEffect(
-        savedStateHandle?.get<String>("category"),
-        savedStateHandle?.get<String>("dateRange"),
-        savedStateHandle?.get<Array<String>>("unwantedWords")
-    ) {
-        val newCategory = savedStateHandle?.get<String>("category") ?: "All"
-        val newDateRange = savedStateHandle?.get<String>("dateRange")
-        val newUnwantedWords = savedStateHandle?.get<Array<String>>("unwantedWords")?.toList() ?: emptyList()
+    val coroutineScope = rememberCoroutineScope()
+    val newsDAO = remember { NewsDAO() }
 
-        // Ažuriramo stanje sa preuzetim podacima
-        selectedCategory = newCategory
-        dateFrom = newDateRange?.split(";")?.get(0) ?: ""
-        dateTo = newDateRange?.split(";")?.get(1) ?: ""
-        unwantedWordsList = newUnwantedWords
+    val categoryMap = mapOf(
+        "Politika" to "politics",
+        "Sport" to "sports",
+        "Nauka/tehnologija" to "technology",
+        "Svijet" to "general",
+        "All" to "general"
+    )
+
+    fun mapToApiCategory(displayCategory: String): String {
+        return categoryMap[displayCategory] ?: "general"
     }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
-        Text("Odaberi kategoriju:")
+    LaunchedEffect(navController) {
+        selectedCategory = navController.previousBackStackEntry?.savedStateHandle?.get<String>("selectedCategory") ?: "All"
+        selectedRange = navController.previousBackStackEntry?.savedStateHandle?.get<Pair<String, String>>("selectedRange")
+        unwantedWords = navController.previousBackStackEntry?.savedStateHandle?.get<List<String>>("unwantedWords") ?: emptyList()
+    }
+
+    fun fetchCategoryNews(category: String) {
+        if (category == "All") return
+
+        coroutineScope.launch {
+            isLoading = true
+            try {
+                val apiCategory = mapToApiCategory(category)
+                Log.d("FILTER_SCREEN", "Fetching news for category: $category (API: $apiCategory)")
+
+                val newStories = newsDAO.getTopStoriesByCategory(apiCategory)
+                Log.d("FILTER_SCREEN", "Successfully fetched ${newStories.size} new stories for category: $category")
+
+                navController.previousBackStackEntry?.savedStateHandle?.set("categoryFetched_$apiCategory", true)
+
+            } catch (e: Exception) {
+                Log.e("FILTER_SCREEN", "Error fetching news for category $category: ${e.message}")
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val start = dateRangePickerState.selectedStartDateMillis?.let {
+                            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                        }
+                        val end = dateRangePickerState.selectedEndDateMillis?.let {
+                            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                        }
+                        if (start != null && end != null) {
+                            selectedRange = Pair(
+                                start.format(outputFormatter),
+                                end.format(outputFormatter)
+                            )
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DateRangePicker(state = dateRangePickerState)
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (isLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+
+        Text(
+            text = "Kategorije vijesti",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
         val categories = listOf(
             "All" to "filter_chip_all",
             "Politika" to "filter_chip_pol",
             "Sport" to "filter_chip_spo",
-            "Nauka/tehnologija" to "filter_chip_sci"
+            "Nauka/tehnologija" to "filter_chip_sci",
+            "Svijet" to "filter_chip_svi"
         )
 
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items(categories) { (category, testTag) ->
-                FilterChip(
+                CategoryChip(
+                    category = category,
                     selected = selectedCategory == category,
-                    onClick = { selectedCategory = category },
-                    label = { Text(category) },
-                    modifier = Modifier.testTag(testTag)
+                    onClick = {
+                        selectedCategory = category
+                        Log.d("FILTER_SCREEN", "Category selected: $category")
+                        fetchCategoryNews(category)
+                    },
+                    testTag = testTag
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Divider()
 
-        // 🔹 PRIKAZ OPSEGA DATUMA
-        Text(
-            text = if (dateFrom.isNotEmpty() && dateTo.isNotEmpty()) "$dateFrom;$dateTo" else "Odaberite opseg datuma",
-            modifier = Modifier.testTag("filter_daterange_display")
-        )
+        Text(text = "Vremenski raspon", style = MaterialTheme.typography.titleMedium)
 
-        // 🔹 Dugme za otvaranje DateRangePicker-a
-        Button(
-            onClick = { showDatePicker = true },
-            modifier = Modifier.testTag("filter_daterange_button")
-        ) {
-            Text("Odaberi datum")
-        }
-
-        if (showDatePicker) {
-            DateRangePickerDialog(
-                onDateSelected = { start, end ->
-                    dateFrom = start
-                    dateTo = end
-                    showDatePicker = false
-                },
-                onDismiss = { showDatePicker = false }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = selectedRange?.let { "${it.first} - ${it.second}" } ?: "Nije odabran",
+                modifier = Modifier
+                    .testTag("filter_daterange_display")
+                    .align(Alignment.CenterVertically)
             )
+            Button(
+                onClick = { showDatePicker = true },
+                modifier = Modifier.testTag("filter_daterange_button")
+            ) {
+                Text("Odaberite datume")
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Divider()
 
-        // 🔹 Unos nepoželjnih riječi
+        Text(text = "Neželjene riječi", style = MaterialTheme.typography.titleMedium)
+
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextField(
                 value = unwantedWord,
                 onValueChange = { unwantedWord = it },
-                modifier = Modifier.testTag("filter_unwanted_input"),
-                placeholder = { Text("Nepoželjna riječ") }
+                modifier = Modifier
+                    .testTag("filter_unwanted_input")
+                    .weight(1f),
+                label = { Text("Unesite riječ") },
+                singleLine = true
             )
             Button(
                 onClick = {
                     val word = unwantedWord.trim()
-                    if (word.isNotEmpty() && unwantedWordsList.none { it.equals(word, ignoreCase = true) }) {
-                        unwantedWordsList = unwantedWordsList + word
+                    if (word.isNotEmpty() && unwantedWords.none { it.equals(word, ignoreCase = true) }) {
+                        unwantedWords = unwantedWords + word
+                        unwantedWord = ""
                     }
-                    unwantedWord = ""
                 },
                 modifier = Modifier.testTag("filter_unwanted_add_button")
             ) {
                 Text("Dodaj")
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
 
-        Column(
-            modifier = Modifier
-                .testTag("filter_unwanted_list")
-                .verticalScroll(rememberScrollState())
-        ) {
-            unwantedWordsList.forEach { word ->
-                Text(word)
+        if (unwantedWords.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .testTag("filter_unwanted_list")
+                    .heightIn(max = 150.dp)
+            ) {
+                items(unwantedWords) { word ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = word, modifier = Modifier.weight(1f))
+                        TextButton(
+                            onClick = {
+                                unwantedWords = unwantedWords.filter { it != word }
+                            }
+                        ) {
+                            Text("Ukloni", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
             }
         }
 
-
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
-            onClick = {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle?.apply {
-                        set("category", selectedCategory)
-                        set("dateRange", if (dateFrom.isNotBlank() && dateTo.isNotBlank()) "$dateFrom;$dateTo" else null)
-                        set("unwantedWords", unwantedWordsList.toTypedArray()) // Pretvaramo listu u niz
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = {
+                    selectedCategory = "All"
+                    selectedRange = null
+                    unwantedWords = emptyList()
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Resetuj")
+            }
+
+            Button(
+                onClick = {
+                    navController.previousBackStackEntry?.savedStateHandle?.apply {
+                        remove<String>("selectedCategory")
+                        remove<Pair<String, String>>("selectedRange")
+                        remove<List<String>>("unwantedWords")
+
+                        set("selectedCategory", selectedCategory)
+                        set("selectedRange", selectedRange)
+                        set("unwantedWords", unwantedWords)
                     }
 
-                navController.popBackStack()
-            },
-            //------------------------------------------
-
-
-
-            modifier = Modifier.testTag("filter_apply_button")
-        ) {
-            Text("Primijeni filtere")
+                    Log.d("FILTER_SCREEN", "Applied filters - Category: $selectedCategory, Range: $selectedRange, Unwanted: $unwantedWords")
+                    navController.popBackStack()
+                },
+                modifier = Modifier
+                    .testTag("filter_apply_button")
+                    .weight(1f),
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Primijeni")
+                }
+            }
         }
     }
 }

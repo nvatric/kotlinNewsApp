@@ -9,27 +9,27 @@ import androidx.navigation.NavController
 import etf.ri.rma.newsfeedapp.model.NewsItem
 
 @Composable
-fun NewsList(newsItem: List<NewsItem>, navController: NavController ) {
-    if (newsItem.isEmpty()) {
+fun NewsList(newsItems: List<NewsItem>, navController: NavController , category: String) {
+    if (newsItems.isEmpty()) {
         MessageCard(poruka = "Nema pronađenih vijesti!")
     } else {
         LazyColumn(
             modifier = Modifier.testTag("news_list")
         ) {
-            items(newsItem) { item ->
+            items(newsItems) { item ->
                 if (item.isFeatured) {
                     FeaturedNewsCard(
                         newsItem = item,
-                        navController = navController // Dodajemo navigaciju
+                        navController = navController
                     )
                 } else {
                     StandardNewsCard(
                         newsItem = item,
-                        navController = navController // Dodajemo navigaciju
+                        navController = navController,
+                        category
                     )
                 }
             }
         }
     }
 }
-
