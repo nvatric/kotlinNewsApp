@@ -26,7 +26,7 @@ object RetrofitInstance {
 
     val imaggaApi: ImagaApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://api.imagga.com/v2/")
+            .baseUrl("https://api.imagga.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ImagaApiService::class.java)

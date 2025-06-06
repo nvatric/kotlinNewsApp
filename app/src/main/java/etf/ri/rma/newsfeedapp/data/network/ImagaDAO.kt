@@ -20,18 +20,10 @@ class ImagaDAO {
             false
         }
     }
-
-    private val tagCache = mutableMapOf<String, List<String>>()
-
     suspend fun getTags(imageUrl: String): List<String> {
         if (!isValidUrl(imageUrl)) throw InvalidImageURLException("Invalid image URL: $imageUrl")
-
-        tagCache[imageUrl]?.let { return it }
-
         val response = apiService.getTags(imageUrl)
-
-        tagCache[imageUrl] = response.tags
-        return response.tags
+        return response.tags.take(10)
     }
 }
 
