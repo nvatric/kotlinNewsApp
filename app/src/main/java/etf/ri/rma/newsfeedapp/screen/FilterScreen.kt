@@ -21,7 +21,8 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterScreen(
-    navController: NavController
+    navController: NavController,
+    newsDAO: NewsDAO
 ) {
     var selectedCategory by remember { mutableStateOf("All") }
     var unwantedWord by remember { mutableStateOf("") }
@@ -34,7 +35,7 @@ fun FilterScreen(
     val outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     val coroutineScope = rememberCoroutineScope()
-    val newsDAO = remember { NewsDAO() }
+    //val newsDAO = remember { NewsDAO() }
 
     val categoryMap = mapOf(
         "Politika" to "politics",

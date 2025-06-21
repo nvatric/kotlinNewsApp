@@ -10,9 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.model.toNewsItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -30,7 +34,11 @@ fun mapToApiCategory(displayCategory: String): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewsFeedScreen(navController: NavController, newsDAO: NewsDAO) {
+fun NewsFeedScreen(
+    navController: NavController,
+    newsDAO: NewsDAO,
+    savedNewsDAO: SavedNewsDAO
+) {
     var allNews by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var selectedSort by rememberSaveable { mutableStateOf<SortOption?>(null) }
@@ -41,13 +49,51 @@ fun NewsFeedScreen(navController: NavController, newsDAO: NewsDAO) {
 
     val coroutineScope = rememberCoroutineScope()
     val outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-
     val navEntry = navController.currentBackStackEntryAsState().value
+
+    fun loadNewsFromDatabase() {
+        coroutineScope.launch(Dispatchers.IO) {
+            val entities = savedNewsDAO.getAllNews()
+            val items = entities.map {
+                val tags = savedNewsDAO.getTags(it.id)
+                it.toNewsItem(tags)
+            }
+            withContext(Dispatchers.Main) {
+                allNews = items
+            }
+        }
+    }
+
+    fun fetchCategoryNews(displayCategory: String) {
+        if (displayCategory == "All") {
+            loadNewsFromDatabase()
+            return
+        }
+
+        val apiCategory = mapToApiCategory(displayCategory)
+        val currentTime = System.currentTimeMillis()
+        val thirtySecondsInMillis = 30 * 1000
+
+        if (currentTime - lastGlobalCallTime > thirtySecondsInMillis) {
+            coroutineScope.launch {
+                isLoading = true
+                try {
+                    newsDAO.getTopStoriesByCategory(apiCategory)
+                    loadNewsFromDatabase()
+                    lastGlobalCallTime = currentTime
+                } catch (e: Exception) {
+                    Log.e("NewsFeedScreen", "Error fetching category news", e)
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
 
     LaunchedEffect(navEntry) {
         navEntry?.savedStateHandle?.get<Boolean>("refreshRequired")?.let { shouldRefresh ->
             if (shouldRefresh) {
-                allNews = newsDAO.getAllStories()
+                loadNewsFromDatabase()
                 navEntry.savedStateHandle.set("refreshRequired", false)
             }
         }
@@ -63,34 +109,22 @@ fun NewsFeedScreen(navController: NavController, newsDAO: NewsDAO) {
         }
     }
 
-    fun fetchCategoryNews(displayCategory: String) {
-        if (displayCategory == "All") return
-
-        val apiCategory = mapToApiCategory(displayCategory)
-        val currentTime = System.currentTimeMillis()
-        val thirtySecondsInMillis = 30 * 1000
-
-        if (currentTime - lastGlobalCallTime > thirtySecondsInMillis) {
-            coroutineScope.launch {
-                isLoading = true
-                try {
-                    newsDAO.getTopStoriesByCategory(apiCategory)
-                    allNews = newsDAO.getAllStories()
-                    lastGlobalCallTime = currentTime
-                } catch (e: Exception) {
-                    Log.e("NewsFeedScreen", "Error fetching category news", e)
-                } finally {
-                    isLoading = false
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val existingNews = savedNewsDAO.getAllNews()
+            if (existingNews.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    fetchCategoryNews(selectedCategory)
+                }
+            } else {
+                val items = existingNews.map {
+                    val tags = savedNewsDAO.getTags(it.id)
+                    it.toNewsItem(tags)
+                }
+                withContext(Dispatchers.Main) {
+                    allNews = items
                 }
             }
-        }
-    }
-
-    LaunchedEffect(selectedCategory) {
-        if (selectedCategory == "All") {
-            allNews = newsDAO.getAllStories()
-        } else {
-            fetchCategoryNews(selectedCategory)
         }
     }
 

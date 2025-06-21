@@ -9,48 +9,72 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import etf.ri.rma.newsfeedapp.model.NewsItem
 import etf.ri.rma.newsfeedapp.data.network.ImagaDAO
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
-import androidx.compose.ui.text.font.FontWeight
+import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 import androidx.compose.foundation.layout.FlowRow
+import etf.ri.rma.newsfeedapp.model.toNewsItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewsDetailsScreen(
     newsId: String,
     navController: NavController,
-    newsDAO: NewsDAO
+    newsDAO: NewsDAO,
+    savedNewsDAO: SavedNewsDAO
 ) {
     val imagaDAO = remember { ImagaDAO() }
 
     var newsItem by remember { mutableStateOf<NewsItem?>(null) }
-   // var imageTags by remember { mutableStateOf<List<String>>(emptyList()) }
     val imageTags = remember { mutableStateListOf<String>() }
-
     var similarStories by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+
+    suspend fun loadNewsItem(uuid: String): NewsItem? {
+        val entity = savedNewsDAO.getAllNews().find { it.uuid == uuid }
+        return entity?.let {
+            val tags = savedNewsDAO.getTags(it.id)
+            it.toNewsItem(tags)
+        }
+    }
 
     LaunchedEffect(newsId) {
         isLoading = true
         try {
-            val allStories = newsDAO.getAllStories()
-            newsItem = allStories.find { it.uuid == newsId }
+            newsItem = withContext(Dispatchers.IO) {
+                loadNewsItem(newsId)
+            }
+
 
             newsItem?.let { news ->
-                if (news.imageTags != null && news.imageTags!!.isNotEmpty()) {
+                val (newsRoomId, tagsFromDb) = withContext(Dispatchers.IO) {
+                    val id = savedNewsDAO.getNewsIdByUUID(news.uuid)
+                    val tags = id?.let { savedNewsDAO.getTags(it) } ?: emptyList()
+                    Pair(id, tags)
+                }
+
+                if (tagsFromDb.isNotEmpty()) {
                     imageTags.clear()
-                    imageTags.addAll(news.imageTags!!)
+                    imageTags.addAll(tagsFromDb)
+                    news.imageTags = ArrayList(tagsFromDb)
                 } else if (!news.imageUrl.isNullOrEmpty()) {
                     try {
                         val tags = imagaDAO.getTags(news.imageUrl!!)
                         imageTags.clear()
                         imageTags.addAll(tags)
                         news.imageTags = ArrayList(tags)
-                        allStories.find { it.uuid == news.uuid }?.imageTags = ArrayList(tags)
+
+                        if (newsRoomId != null) {
+                            withContext(Dispatchers.IO) {
+                                savedNewsDAO.addTags(tags, newsRoomId)
+                            }
+                        }
                     } catch (e: Exception) {
                         Log.e("NewsDetailsScreen", "Greška pri dohvatu tagova: ${e.message}")
                     }
@@ -60,12 +84,11 @@ fun NewsDetailsScreen(
             }
 
         } catch (e: Exception) {
-            Log.e("NewsDetailsScreen", "Greska: ${e.message}")
+            Log.e("NewsDetailsScreen", "Greška: ${e.message}")
         } finally {
             isLoading = false
         }
     }
-
 
     Scaffold { padding ->
         if (isLoading) {
@@ -79,9 +102,7 @@ fun NewsDetailsScreen(
                     .padding(padding)
                     .padding(16.dp)
             ) {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
+                LazyColumn(modifier = Modifier.weight(1f)) {
                     item {
                         Text(newsItem!!.title, style = MaterialTheme.typography.headlineSmall)
                         Spacer(modifier = Modifier.height(8.dp))
@@ -98,22 +119,20 @@ fun NewsDetailsScreen(
                         Text(text = newsItem!!.category)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                       // if (imageTags.isNotEmpty()) {
-                            Text(
-                                text = "Tagovi slike:",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            FlowRow(modifier = Modifier.fillMaxWidth()) {
-                                imageTags.forEach { tag ->
-                                    Text(
-                                        text = tag,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                                    )
-                                }
+                        Text(
+                            text = "Tagovi slike:",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        FlowRow(modifier = Modifier.fillMaxWidth()) {
+                            imageTags.forEach { tag ->
+                                Text(
+                                    text = tag,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                )
                             }
-                      //  }
+                        }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
