@@ -9,11 +9,13 @@ fun NewsItem.toNews(): News {
         category = this.category,
         isFeatured = this.isFeatured,
         source = this.source,
-        publishedDate = this.publishedDate
+        publishedDate = this.publishedDate,
+        tags = this.imageTags
     )
 }
 
-fun News.toNewsItem(tags: List<String>): NewsItem {
+
+fun News.toNewsItem(): NewsItem {
     return NewsItem(
         uuid = this.uuid,
         title = this.title,
@@ -23,6 +25,8 @@ fun News.toNewsItem(tags: List<String>): NewsItem {
         isFeatured = this.isFeatured,
         source = this.source,
         publishedDate = this.publishedDate,
-        imageTags = ArrayList(tags)
+        imageTags = ArrayList(this.tags)
     )
 }
+
+

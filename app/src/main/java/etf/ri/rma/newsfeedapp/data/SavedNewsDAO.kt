@@ -79,12 +79,18 @@ interface SavedNewsDAO {
         if (existingByUUID != null || existingByTitleDate != null) return false
         return insertNews(news) != -1L
     }
+    @Transaction
+    suspend fun saveNews(newsItem: NewsItem): Boolean {
+        return saveNews(newsItem.toNews())
+    }
 
     @Transaction
-    fun allNews(): List<News> {
+    fun allNews(): List<NewsItem> {
         return getAllNews().map {
             val tags = getTags(it.id)
-            it.copy(tags = tags.map { tag -> TagEntity(value = tag) })
+            it.copy(tags = tags.map { value -> TagEntity(value = value) }).toNewsItem()
         }
     }
+
+
 }

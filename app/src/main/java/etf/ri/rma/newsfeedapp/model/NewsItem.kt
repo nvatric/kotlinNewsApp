@@ -9,5 +9,5 @@ data class NewsItem(
     var isFeatured: Boolean,
     val source: String,
     val publishedDate: String,
-    var imageTags: ArrayList<String>
+    var imageTags: ArrayList<TagEntity> = arrayListOf()
 )

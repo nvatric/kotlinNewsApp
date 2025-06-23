@@ -16,10 +16,10 @@ import etf.ri.rma.newsfeedapp.data.network.ImagaDAO
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 import androidx.compose.foundation.layout.FlowRow
+import etf.ri.rma.newsfeedapp.model.TagEntity
 import etf.ri.rma.newsfeedapp.model.toNewsItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +32,7 @@ fun NewsDetailsScreen(
     val imagaDAO = remember { ImagaDAO() }
 
     var newsItem by remember { mutableStateOf<NewsItem?>(null) }
-    val imageTags = remember { mutableStateListOf<String>() }
+    val imageTags = remember { mutableStateListOf<TagEntity>() }
     var similarStories by remember { mutableStateOf<List<NewsItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -40,7 +40,7 @@ fun NewsDetailsScreen(
         val entity = savedNewsDAO.getAllNews().find { it.uuid == uuid }
         return entity?.let {
             val tags = savedNewsDAO.getTags(it.id)
-            it.toNewsItem(tags)
+            it.copy(tags = tags.map { value -> TagEntity(value = value) }).toNewsItem()
         }
     }
 
@@ -51,7 +51,6 @@ fun NewsDetailsScreen(
                 loadNewsItem(newsId)
             }
 
-
             newsItem?.let { news ->
                 val (newsRoomId, tagsFromDb) = withContext(Dispatchers.IO) {
                     val id = savedNewsDAO.getNewsIdByUUID(news.uuid)
@@ -60,15 +59,17 @@ fun NewsDetailsScreen(
                 }
 
                 if (tagsFromDb.isNotEmpty()) {
+                    val tagEntities = tagsFromDb.map { TagEntity(value = it) }
                     imageTags.clear()
-                    imageTags.addAll(tagsFromDb)
-                    news.imageTags = ArrayList(tagsFromDb)
+                    imageTags.addAll(tagEntities)
+                    news.imageTags = ArrayList(tagEntities)
                 } else if (!news.imageUrl.isNullOrEmpty()) {
                     try {
                         val tags = imagaDAO.getTags(news.imageUrl!!)
+                        val tagEntities = tags.map { TagEntity(value = it) }
                         imageTags.clear()
-                        imageTags.addAll(tags)
-                        news.imageTags = ArrayList(tags)
+                        imageTags.addAll(tagEntities)
+                        news.imageTags = ArrayList(tagEntities)
 
                         if (newsRoomId != null) {
                             withContext(Dispatchers.IO) {
@@ -127,7 +128,7 @@ fun NewsDetailsScreen(
                         FlowRow(modifier = Modifier.fillMaxWidth()) {
                             imageTags.forEach { tag ->
                                 Text(
-                                    text = tag,
+                                    text = tag.value,
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                                 )

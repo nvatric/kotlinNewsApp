@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import etf.ri.rma.newsfeedapp.data.SavedNewsDAO
 import etf.ri.rma.newsfeedapp.data.network.NewsDAO
 import etf.ri.rma.newsfeedapp.model.NewsItem
+import etf.ri.rma.newsfeedapp.model.TagEntity
 import etf.ri.rma.newsfeedapp.model.toNewsItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,8 +57,9 @@ fun NewsFeedScreen(
             val entities = savedNewsDAO.getAllNews()
             val items = entities.map {
                 val tags = savedNewsDAO.getTags(it.id)
-                it.toNewsItem(tags)
+                it.copy(tags = tags.map { value -> TagEntity(value = value) }).toNewsItem()
             }
+
             withContext(Dispatchers.Main) {
                 allNews = items
             }
@@ -119,8 +121,9 @@ fun NewsFeedScreen(
             } else {
                 val items = existingNews.map {
                     val tags = savedNewsDAO.getTags(it.id)
-                    it.toNewsItem(tags)
+                    it.copy(tags = tags.map { value -> TagEntity(value = value) }).toNewsItem()
                 }
+
                 withContext(Dispatchers.Main) {
                     allNews = items
                 }

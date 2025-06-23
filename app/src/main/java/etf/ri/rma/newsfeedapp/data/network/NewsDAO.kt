@@ -69,9 +69,11 @@ class NewsDAO(private val savedNewsDAO: SavedNewsDAO) {
                 if (added) {
                     val newsId = savedNewsDAO.getNewsIdByUUID(story.uuid)
                     if (newsId != null) {
-                        savedNewsDAO.addTags(story.imageTags, newsId)
+                        savedNewsDAO.addTags(story.imageTags.map { it.value }, newsId)
                     }
                 }
+
+
             }
 
             allStories.filterNot { newStories.contains(it) }.forEach {
@@ -108,9 +110,10 @@ class NewsDAO(private val savedNewsDAO: SavedNewsDAO) {
                 if (added) {
                     val newsId = savedNewsDAO.getNewsIdByUUID(story.uuid)
                     if (newsId != null) {
-                        savedNewsDAO.addTags(story.imageTags, newsId)
+                        savedNewsDAO.addTags(story.imageTags.map { it.value }, newsId)
                     }
                 }
+
             }
 
             return@withContext result
